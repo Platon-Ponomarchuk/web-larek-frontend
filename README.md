@@ -33,22 +33,26 @@ npm run build
 
 ## Данные и типы данных, используемые в приложении
 
-Тип метода оплаты
+Тип событий по клику
 
 ```
-type TPayment = 'cash' | 'card';
+type ModalActions = {
+	onClick: () => void;
+};
 ```
 
 Карточка продукта
 
 ```
 interface IProduct {
-    id: string
-    title: string;
-    description: string;
-    image: string;
-    category: string;
-    price: number;
+	id: string;
+	title: string;
+	description: string;
+	image: string;
+	category: string;
+	price: number;
+	counter?: HTMLElement;
+	deleteBtn?: HTMLElement;
 }
 
 ```
@@ -56,18 +60,13 @@ interface IProduct {
 Корзина
 
 ```
-interface IBuscket {
-    products: ICard[];
-    total: number;
-}
-```
-
-Модель данных карточек
-
-```
-interface ICardData {
-    cards: ICard[];
-    preview: string | null;
+interface ICart {
+	products: IProduct[];
+	totalPrice: number;
+	counter: number;
+	addProduct: (product: IProduct) => void;
+	removeProduct: (index: number) => void;
+	clear: () => void;
 }
 ```
 
@@ -100,30 +99,31 @@ interface ICardData {
 
 ### Слой данных
 
-#### Класс ProductData
+#### Класс ProductApi
 
-Отвечает за хранение всех товаров, полученных с сервера. а так же за логику работы с ними.\
+Отвечает за получение данных о товарах.\
 Имеет следующие поля:
 
-- `products : IProduct[]` - массив товаров
-- `preview: string | null` - хранит `id` карточки, у которой открываем предпросмотр\
+- `baseUrl: string` - баззовая ссылка для API\
+- `settings?: RequestInit` - настройки запроса\
 
 Методы:
 
-- `getProduct: (id: string) => IProduct` - возвращает товар по `id`
+- `getProducts() => Promise<IProduct[]>` - возвращает список всех товаров\
 
 #### Класс Cart
 
 Отвечает за корзину с товарами и логику работы с ней.\
 Имеет следующие поля:
 
-- `products : IProduct[]` - массив товаров, которые находятся в корзине
+- `products : IProduct[]` - массив товаров, которые находятся в корзине\
 - `totalPrice: number` - суммарная цена всех товаров в корзине\
+- `counter: number` - количество товаров в корзине\
 
 Методы:
 
 - `addProduct: (product: IProduct) => void` - добавляет товар в корзину
-- `removeProduct: (product: IProduct) => void` - удаляет товар из корины
+- `removeProduct: (index: number) => void` - удаляет товар из корины
 - `clear: () => void` - очищает корзину, например, при завершении оформления заказа
 
 #### Класс Order
@@ -131,14 +131,47 @@ interface ICardData {
 Отвечает за заказ и отправку его на сервер.\
 Имеет следующие поля:
 
-- `status: string` - статус заказа
-- `totalPrice: number` - сумма заказа
+- `phone: string` - телефон пользователя
+- `address: string` - адрес пользователя
+- `payment: string` - способ оплаты
+- `email: string` - почта пользователя
+- `items: string[]` - список товаров в заказе
+- `total: number` - сумма заказа
 
 Методы:
 
-- `postOrder: () => void` - отправляет информацию о заказе на сервер
+- `setBilling(address: string, payment: string) => void` - устанавливает значения фдреса и способа оплаты\
+- `setOrder(phone: string, email: string) => void` - устанавливет телефон и почту пользователя\
+- `setItems(items: IProduct[] => void` - устанавливает список товаров и сумму заказа\
 
 ### Слой отображения
+
+#### класс Modal
+
+Отвечает за отображение модального окна и его наполнение\
+Имеет поля:
+
+- `content: HTMLElement` - наполнение модального окна
+- `closeBtn: HTMLElement` - кнопка закрытия
+- `actionBtn?: HTMLButtonElement` - дополнительная кнопка, выполняет функцию добавления товара в корзину
+
+Методы:
+
+- `setContent(content: HTMLElement, actions?: ModalActions) => void` - наполняет модальное окно
+- `open() => void` - открывает окно
+- `close() => void` - закрывает окно
+
+#### класс ProductShort
+
+Отвечает за отображение товара в корзине\
+Имеет поля:
+
+- `title: HTMLElement` - название
+- `price: HTMLElement` - цена
+- `counter: HTMLElement` - счетчик
+- `deleteBtn` - кнопка удаления
+
+В конструкторе присваиваются значения всем полям, а на кнопку ставится слушатель для удаления из корзины\
 
 #### класс CartUI
 
@@ -147,7 +180,14 @@ interface ICardData {
 
 - `model: ICart` - модель корзины
 - `content: HTMLElement` - наполнение блока в HTML
-- `events: IEvents` - для работы с событиями
+- `productList: HTMLElement` - список товаров
+- `price: HTMLElement` - общая стоимость
+- `count: HTMLElement` - общее количество товаров
+
+Методы:
+
+- `updateContent() => void` - обновляет содержимое корзины\
+- `delete(target: HTMLElement, cart: Cart, count: HTMLElement, price: HTMLElement)` - удаляет товар из корзины\
 
 #### класс Buyer
 
@@ -156,7 +196,13 @@ interface ICardData {
 
 - `email: HTMLElement` - поле email
 - `phone: HTMLElement` - поле телефона
-- `events: IEvents` - для работы с событиями
+- `content: HTMLElement` - полностью контент в HTML
+- `submitButton: HTMLButtonElement` - кнопка подтверждения
+
+Методы:
+
+- `setPhone(phone: string) => void` - ставит начальное значение `+7 (` в поле для улучшения пользовательского опыта
+- `checkvalid() => void` - валидирует поля и блокирует/разблокирует кнопку
 
 #### класс BillingForm
 
@@ -164,30 +210,36 @@ interface ICardData {
 Имеет следующие поля:
 
 - `address: HTMLElement` - поле адреса
-- `payment: HTMLElement` - выбор способа оплаты
-- `events: IEvents` - для работы с событиями
+- `content: HTMLElement` - наполнение блока в HTML
+- `paymentCard: HTMLElement` - способ оплаты картой
+- `paymentCash: HTMLElement` - способ оплаты наличными
+- `orderButton: HTMLElement` - кнопка подтверждения
 
-#### класс CompletedOrder
+Методы:
 
-Отвечает за вывод сообщения о статусе заказа после его оформления.\
+- `checkvalid() => void` - валидирует поля и блокирует/разблокирует кнопку
+
+#### класс Complete
+
+Отвечает за вывод сообщения о статусе и сумме заказа после его оформления.\
 Имеет следующие поля:
 
-- `status: HTMLElement` - значение статуса
+- `button: HTMLElement` - кнопка возврата к каталогу
+- `content: HTMLElement` - наполнение блока в HTML
 - `totalPrice: HTMLElement` - стоимость заказа
 
 ## Взаимодействие компонентов
 
 Взаимодействое осуществляется за счёт брокера событий, описанного в `types\index.ts`.\
 
-Список всех событий:\
-`card:open` - открытие карточки продукта,\
-`cart:open` - открытие модального окна корзины,\
-`card:close` - закрытие карточки продукта,\
-`cart:close` - закрытие модального окна корзины,\
-`cartProduct:delete` - удаление продукта из корзины,\
-`cart:submit` - оформление корзины,\
-`product:buy` - добавление продукта в корзину,\
-`billing:submit` - подтверждение адреса и способа оплаты,\
-`buyer:submit` - подтверждение данных покупателя,\
-`buyer:validate` - валидация данных покупателя,\
-`billing:validate` - валидация данных адреса
+Список всех событий:
+
+-`OPEN_CARD` - открытие карточки продукта\
+-`OPEN_CART` - открытие модального окна корзины\
+-`CLEAR_CART` - очистка корзины\
+-`LOAD` - звгрузка всех товаров\
+-`CLOSE_MODAL` - закрытие модального окна\
+-`BUY_PRODUCT` - добавление продукта в корзину\
+-`SUBMIT_ORDER` - оформление заказа\
+-`SUBMIT_BUYER` - подтверждение данных покупателя\
+-`SUBMIT_BILLING` - подтверждение адреса и способа оплаты\

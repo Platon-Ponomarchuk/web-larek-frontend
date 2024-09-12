@@ -1,83 +1,84 @@
-import { IEvents } from "../components/base/events";
+import { IEvents } from '../components/base/events';
 
-type TPayment = 'cash' | 'card';
+export type ModalActions = {
+	onClick: () => void;
+};
 
-interface IProduct {
-    id: string
-    title: string;
-    description: string;
-    image: string;
-    category: string;
-    price: number;
+export interface IProduct {
+	id: string;
+	title: string;
+	description: string;
+	image: string;
+	category: string;
+	price: number;
+	counter?: HTMLElement;
+	deleteBtn?: HTMLElement;
 }
 
-interface IProductData {
-    products: IProduct[];
-    events: IEvents;
-    preview: string | null;
-    getProduct: (id: string) => IProduct;
+export interface ICart {
+	products: IProduct[];
+	totalPrice: number;
+	counter: number;
+	addProduct: (product: IProduct) => void;
+	removeProduct: (index: number) => void;
+	clear: () => void;
 }
 
-interface ICart {
-    products: IProduct[];
-    totalPrice: number;
-    addProduct: (product: IProduct) => void;
-    removeProduct: (product: IProduct) => void;
-    clear: () => void;
+export interface ICartUI {
+	model: ICart;
+	content: HTMLElement;
+	productList: HTMLElement;
+	price: HTMLElement;
+	count: HTMLElement;
+	updateContent: () => void;
+	delete: (
+		target: HTMLElement,
+		cart: ICart,
+		count: HTMLElement,
+		price: HTMLElement
+	) => void;
 }
 
-interface ICartUI {
-    model: ICart;
-    content: HTMLElement;
-    events: IEvents;
+export interface IBuyer {
+	email: HTMLElement;
+	phone: HTMLElement;
+	events: IEvents;
+	setPhone: (phone: string) => void;
+	checkValid: () => void;
 }
 
-interface IBuyer {
-    email: HTMLElement;
-    phone: HTMLElement;
-    events: IEvents
+export interface IModal {
+	content: HTMLElement;
+	closeBtn: HTMLElement;
+	actionBtn?: HTMLElement;
+	setContent: (content: HTMLElement, actions?: ModalActions) => void;
+	open: () => void;
+	close: () => void;
 }
 
-interface IModal {
-    isOpen: boolean;
-    content: HTMLElement;
-    events: IEvents;
-    closeBtn: HTMLElement;
-    sbmBtn?: HTMLElement;
-    open: () => void;
-    close: () => void;
-    closeByOverlay: () => void;
-    closeByEsc: (event: KeyboardEvent) => void;
-    submit?: () => void;
+export interface IBillingForm {
+	address: HTMLElement;
+	paymentCard: HTMLElement;
+	paymentCash: HTMLElement;
+	orderButton: HTMLButtonElement;
+	content: HTMLElement;
+	checkValid: () => void;
 }
 
-interface IOrder {
-    status: string;
-    totalPrice: number;
-    events: IEvents;
+export interface IComplete {
+	button: HTMLButtonElement;
+	content: HTMLElement;
+	totalPrice: HTMLElement;
 }
 
-interface IBillingForm {
-    address: HTMLElement;
-    payment: HTMLElement;
-    events: IEvents
-}
-
-interface ICompletedOrder {
-    status: HTMLElement;
-    totalPrice: HTMLElement;
-}
-
-enum TEventNames {
-    "card:open",
-    "cart:open",
-    "card:close",
-    "cart:close",
-    "cartProduct:delete",
-    "cart:submit",
-    "product:buy",
-    "billing:submit",
-    "buyer:submit",
-    "buyer:validate",
-    "billing:validate"
+export enum TEventNames {
+	LOAD = 'cards:load',
+	OPEN_CARD = 'card:open',
+	OPEN_CART = 'cart:open',
+	CLEAR_CART = 'cart:clear',
+	CLOSE_MODAL = 'modal:close',
+	BUY_PRODUCT = 'product:buy',
+	SUBMIT_ORDER = 'cart:submit',
+	SUBMIT_BILLING = 'billing:submit',
+	SUBMIT_BUYER = 'buyer:submit',
 }
