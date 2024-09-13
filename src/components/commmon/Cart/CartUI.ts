@@ -37,10 +37,7 @@ export class CartUI extends Component<ICartUI> {
 				cloneTemplate(ensureElement<HTMLTemplateElement>('#card-basket')),
 				item,
 				++counter,
-				this.delete,
-				this.model,
-				this.count,
-				this.price
+				this
 			);
 			this.productList.append(product.render());
 		});
@@ -52,21 +49,17 @@ export class CartUI extends Component<ICartUI> {
 		}
 	}
 
-	delete(
-		target: HTMLElement,
-		cart: Cart,
-		count: HTMLElement,
-		price: HTMLElement
-	) {
+	delete(target: HTMLElement) {
 		const index = target
 			.closest('.card')
 			.querySelector('.basket__item-index').textContent;
 		target
 			.closest('.basket__list')
 			.removeChild(target.closest('.basket__item'));
-		cart.removeProduct(Number(index) - 1);
-		count.textContent = String(cart.Counter);
-		price.textContent = String(cart.TotalPrice) + ' синапсов';
+		this.model.removeProduct(Number(index) - 1);
+		this.count.textContent = String(this.model.Counter);
+		this.price.textContent = String(this.model.TotalPrice) + ' синапсов';
+		this.updateContent();
 	}
 
 	get Content() {

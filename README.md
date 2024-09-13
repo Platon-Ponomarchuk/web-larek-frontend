@@ -97,6 +97,24 @@ interface ICart {
 - `emit` - инициализация события
 - `trigger` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие
 
+#### Класс Component
+
+Базовый класс описывающий управление и взаимодействие над DOM элементами.
+
+Поля класса:
+
+`container: HTMLElement` - контейнер с html разметкой компонента
+
+Методы класса:
+
+- `toggleClass(element: HTMLElement, className: string, force?: boolean) => void` - переключить класс
+- `setText(element: HTMLElement, value: unknown) => void` - установить текстовое содержимое
+- `setDisabled(element: HTMLElement, state: boolean) => void` - сменить статус блокировки
+- `setHidden(element: HTMLElement) => void` - скрыть элемент
+- `setVisible(element: HTMLElement) => void` - показать элемент
+- `setImage(element: HTMLImageElement, src: string, alt?: string) => void` - Установить изображение с алтернативным текстом.
+- `render(data?: Partial<T>) => HTMLElement` - Метод сборки UI компонента, на вход принимает html шаблон. На выход отдает скомпанованный html.
+
 ### Слой данных
 
 #### Класс ProductApi
@@ -146,7 +164,7 @@ interface ICart {
 
 ### Слой отображения
 
-#### класс Modal
+#### Класс Modal
 
 Отвечает за отображение модального окна и его наполнение\
 Имеет поля:
@@ -161,7 +179,7 @@ interface ICart {
 - `open() => void` - открывает окно
 - `close() => void` - закрывает окно
 
-#### класс ProductShort
+#### Класс ProductShort
 
 Отвечает за отображение товара в корзине\
 Имеет поля:
@@ -173,7 +191,7 @@ interface ICart {
 
 В конструкторе присваиваются значения всем полям, а на кнопку ставится слушатель для удаления из корзины\
 
-#### класс CartUI
+#### Класс CartUI
 
 Отвечает за отображение корзины и ее содержимого. А так же для взаимодествия пользователя с ней.\
 Имеет следующие поля:
@@ -187,9 +205,9 @@ interface ICart {
 Методы:
 
 - `updateContent() => void` - обновляет содержимое корзины\
-- `delete(target: HTMLElement, cart: Cart, count: HTMLElement, price: HTMLElement)` - удаляет товар из корзины\
+- `delete(target: HTMLElement)` - удаляет товар из корзины\
 
-#### класс Buyer
+#### Класс Buyer
 
 Отвечает за заполнение и валидацию полей формы покупателя.\
 Имеет следующие поля:
@@ -204,7 +222,7 @@ interface ICart {
 - `setPhone(phone: string) => void` - ставит начальное значение `+7 (` в поле для улучшения пользовательского опыта
 - `checkvalid() => void` - валидирует поля и блокирует/разблокирует кнопку
 
-#### класс BillingForm
+#### Класс BillingForm
 
 Отвечает за заполнение и валидацию полей формы покупателя.\
 Имеет следующие поля:
@@ -219,7 +237,7 @@ interface ICart {
 
 - `checkvalid() => void` - валидирует поля и блокирует/разблокирует кнопку
 
-#### класс Complete
+#### Класс Complete
 
 Отвечает за вывод сообщения о статусе и сумме заказа после его оформления.\
 Имеет следующие поля:

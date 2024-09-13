@@ -1,6 +1,7 @@
 import { IProduct } from '../../../types/index';
 import { Component } from '../../base/component';
 import { Cart } from '../Cart/Cart';
+import { CartUI } from '../Cart/CartUI';
 
 export class ProductShort extends Component<IProduct> {
 	protected title: HTMLElement;
@@ -12,15 +13,7 @@ export class ProductShort extends Component<IProduct> {
 		container: HTMLElement,
 		data: IProduct,
 		counter: number,
-		deleteFunc: (
-			target: HTMLElement,
-			cart: Cart,
-			count: HTMLElement,
-			price: HTMLElement
-		) => void,
-		cart: Cart,
-		count: HTMLElement,
-		price: HTMLElement
+		cartUI: CartUI
 	) {
 		super(container);
 
@@ -38,7 +31,7 @@ export class ProductShort extends Component<IProduct> {
 		this.counter.textContent = String(counter);
 
 		this.deleteBtn.addEventListener('click', () => {
-			deleteFunc(this.deleteBtn, cart, count, price);
+			cartUI.delete(this.deleteBtn);
 		});
 	}
 }
